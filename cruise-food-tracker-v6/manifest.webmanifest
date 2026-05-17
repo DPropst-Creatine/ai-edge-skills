@@ -1,0 +1,8 @@
+{
+  "name": "Cruise Food Tracker v6",
+  "short_name": "Cruise Food",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#f5f6f8",
+  "theme_color": "#111827"
+}
