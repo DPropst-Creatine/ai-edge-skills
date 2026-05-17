@@ -1,6 +1,6 @@
 ---
 name: cruise-food-scorer
-description: Stable mobile skill for scoring food photos or described meals with a Hava-style satiety score, rough calories/macros, glycemic impact, meal type, and a mandatory paste-ready meal log entry for the Cruise Food Tracker.
+description: Stable mobile skill for scoring food photos or described meals with an SPC Score (Satiety Per Calorie), rough calories/macros, glycemic impact, meal type, and a mandatory paste-ready meal log entry for the Cruise Food Tracker.
 ---
 
 # Cruise Food Scorer
@@ -9,7 +9,13 @@ description: Stable mobile skill for scoring food photos or described meals with
 
 Analyze a food photo or described meal. Return a practical estimate only. Do not store data. Do not open a dashboard. Do not use JavaScript.
 
-This is not medical advice, not a precise nutrition label, not a true glucose prediction, and not the official Hava algorithm.
+This is not medical advice, not a precise nutrition label, not a true glucose prediction, and not a proprietary scoring algorithm.
+
+## SPC Definition
+
+SPC means Satiety Per Calorie.
+
+SPC Score is a 0-100 practical estimate of how filling a food or meal is likely to be per calorie, based on protein, fiber, energy density, and hedonic load.
 
 ## Critical Rules
 
@@ -40,7 +46,7 @@ Use Drink for alcohol, coffee drinks, soda, juice, smoothies, shakes, or sweet b
 Use Snack for small sides, protein shakes, shrimp cocktail, fruit, fries alone, or small in-between foods.
 Use Lunch or Dinner for full plates or entrees depending on user context. If context is unclear, choose Lunch for daytime-style meals and Dinner for evening-style entree plates.
 
-## Hava-Style Satiety Score
+## SPC Score
 
 Score from 0 to 100. Round to nearest 5. Always write it as X/100.
 
@@ -97,23 +103,23 @@ Protein, fat, and fiber may blunt the glucose rise but do not erase high carbohy
 ## Cruise Calibration
 
 Tacos or Mexican-style:
-- two soft tacos with beef, cheese, guacamole, sour cream: usually 550-850 kcal, 20-35 g protein, score 45-65
+- two soft tacos with beef, cheese, guacamole, sour cream: usually 550-850 kcal, 20-35 g protein, SPC 45-65
 - better upgrade: protein first, vegetables/salsa second, tortilla/rice last; reduce cheese/sour cream if desired
 
 Burger and fries:
-- usually 800-1300 kcal, 25-45 g protein, score 25-45
+- usually 800-1300 kcal, 25-45 g protein, SPC 25-45
 
 Fried chicken sandwich and fries:
-- usually 800-1300 kcal, 25-50 g protein, score 25-45
+- usually 800-1300 kcal, 25-50 g protein, SPC 25-45
 
 Grilled fish, chicken, or shrimp plus vegetables:
-- usually 350-700 kcal, 30-55 g protein, score 60-85
+- usually 350-700 kcal, 30-55 g protein, SPC 60-85
 
 Large salad with lean protein:
-- usually score 60-85 unless dressing, cheese, croutons, nuts, or bacon are heavy
+- usually SPC 60-85 unless dressing, cheese, croutons, nuts, or bacon are heavy
 
 Dessert:
-- usually score 5-30 unless fruit or Greek-yogurt based
+- usually SPC 5-30 unless fruit or Greek-yogurt based
 
 ## Required Output Format
 
@@ -129,11 +135,11 @@ Protein: [single midpoint estimate]
 Carbs: [single midpoint estimate]
 Fat: [single midpoint estimate]
 Fiber: [single midpoint estimate]
-Satiety: [score]
+SPC: [score]
 Glycemic: [Low / Moderate / High]
 Notes: [short note]
 
-🔢 Score: [X/100], [Low / Lower-moderate / Good / Very high]
+🔢 SPC Score: [X/100], [Low / Lower-moderate / Good / Very high]
 Why: [one concise sentence using protein, fiber, energy density, hedonic load]
 
 📊 Range Estimate: Calories [range]; Protein [range] g; Carbs [range] g; Fat [range] g; Fiber [range] g. Confidence: [Low / Moderate / High]
