@@ -1,6 +1,6 @@
 ---
 name: cruise-food-scorer
-description: Stable mobile skill for scoring food photos or described meals with a Hava-style satiety score, rough calories/macros, glycemic impact, and a paste-ready meal log entry.
+description: Stable mobile skill for scoring food photos or described meals with a Hava-style satiety score, rough calories/macros, glycemic impact, meal type, and a paste-ready meal log entry for the Cruise Food Tracker.
 ---
 
 # Cruise Food Scorer
@@ -19,6 +19,24 @@ This is not medical advice, not a precise nutrition label, not a true glucose pr
 - If the user provides a meal description, use that description as the source of truth.
 - Always estimate calories and macros as ranges.
 - Keep the response concise.
+- Always include a clean Paste Into Tracker block.
+- The Paste Into Tracker block must include Meal Type.
+
+## Meal Type Rules
+
+Choose one meal type:
+
+- Breakfast
+- Lunch
+- Dinner
+- Snack
+- Dessert
+- Drink
+
+Use Dessert for dessert-dominant foods even if eaten after dinner.
+Use Drink for alcohol, coffee drinks, soda, juice, smoothies, shakes, or sweet beverages.
+Use Snack for small sides, protein shakes, shrimp cocktail, fruit, fries alone, or small in-between foods.
+Use Lunch or Dinner for full plates or entrees depending on user context. If context is unclear, choose Lunch for daytime-style meals and Dinner for evening-style entree plates.
 
 ## Hava-Style Satiety Score
 
@@ -121,6 +139,7 @@ Why: [Brief reason]
 
 📋 Paste Into Tracker:
 Meal: [short name]
+Meal Type: [Breakfast / Lunch / Dinner / Snack / Dessert / Drink]
 Calories: [single midpoint estimate]
 Protein: [single midpoint estimate]
 Carbs: [single midpoint estimate]
