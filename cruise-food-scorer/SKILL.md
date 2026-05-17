@@ -1,6 +1,6 @@
 ---
 name: cruise-food-scorer
-description: Stable mobile skill for scoring food photos or described meals with a Hava-style satiety score, rough calories/macros, glycemic impact, meal type, and a paste-ready meal log entry for the Cruise Food Tracker.
+description: Stable mobile skill for scoring food photos or described meals with a Hava-style satiety score, rough calories/macros, glycemic impact, meal type, and a mandatory paste-ready meal log entry for the Cruise Food Tracker.
 ---
 
 # Cruise Food Scorer
@@ -17,10 +17,12 @@ This is not medical advice, not a precise nutrition label, not a true glucose pr
 - Do not output random repeated words or mixed-language text.
 - If the image is unclear, say: "I cannot confidently identify the food. Please describe the meal or list the visible foods."
 - If the user provides a meal description, use that description as the source of truth.
-- Always estimate calories and macros as ranges.
-- Keep the response concise.
-- Always include a clean Paste Into Tracker block.
+- Always estimate calories and macros as ranges in the summary.
+- Always include the exact Paste Into Tracker block.
+- Never omit the Paste Into Tracker block.
 - The Paste Into Tracker block must include Meal Type.
+- Use midpoint numbers in the Paste Into Tracker block, not ranges.
+- Keep the response short enough that the Paste Into Tracker block is never cut off.
 
 ## Meal Type Rules
 
@@ -40,7 +42,7 @@ Use Lunch or Dinner for full plates or entrees depending on user context. If con
 
 ## Hava-Style Satiety Score
 
-Score from 0 to 100. Round to nearest 5.
+Score from 0 to 100. Round to nearest 5. Always write it as X/100.
 
 Drivers:
 1. Protein percentage
@@ -96,6 +98,7 @@ Protein, fat, and fiber may blunt the glucose rise but do not erase high carbohy
 
 Tacos or Mexican-style:
 - two soft tacos with beef, cheese, guacamole, sour cream: usually 550-850 kcal, 20-35 g protein, score 45-65
+- better upgrade: protein first, vegetables/salsa second, tortilla/rice last; reduce cheese/sour cream if desired
 
 Burger and fries:
 - usually 800-1300 kcal, 25-45 g protein, score 25-45
@@ -112,30 +115,11 @@ Large salad with lean protein:
 Dessert:
 - usually score 5-30 unless fruit or Greek-yogurt based
 
-## Output Template
+## Required Output Format
 
-Use this exact format:
+Use this exact structure. The Paste Into Tracker block is mandatory and must come immediately after meal identification.
 
-🍽️ Meal Identified: [Visible or described foods]
-
-🔢 Hava-Style Satiety Score: [X/100]
-Category: [Low / Lower-moderate / Good / Very high]
-Why: [Protein, fiber, energy density, hedonic load]
-
-📊 Rough Nutrition Estimate:
-Calories: [range]
-Protein: [range]
-Carbs: [range]
-Fat: [range]
-Fiber: [range]
-Confidence: [Low / Moderate / High]
-
-🩸 Libre-Style Glycemic Estimate: [Low / Moderate / High]
-Why: [Brief reason]
-
-🎯 Vacation Damage-Control Fit: [Anchor meal / reasonable / mixed / treat meal]
-
-✅ Best Upgrade: [One practical swap, addition, or sequencing tip]
+🍽️ Meal Identified: [visible or described foods]
 
 📋 Paste Into Tracker:
 Meal: [short name]
@@ -148,3 +132,14 @@ Fiber: [single midpoint estimate]
 Satiety: [score]
 Glycemic: [Low / Moderate / High]
 Notes: [short note]
+
+🔢 Score: [X/100], [Low / Lower-moderate / Good / Very high]
+Why: [one concise sentence using protein, fiber, energy density, hedonic load]
+
+📊 Range Estimate: Calories [range]; Protein [range] g; Carbs [range] g; Fat [range] g; Fiber [range] g. Confidence: [Low / Moderate / High]
+
+🩸 Glycemic: [Low / Moderate / High]. [brief reason]
+
+🎯 Vacation Fit: [Anchor meal / reasonable / mixed / treat meal]
+
+✅ Best Upgrade: [one practical swap, addition, or sequencing tip]
