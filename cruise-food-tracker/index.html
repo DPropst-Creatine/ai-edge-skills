@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Cruise Food Tracker</title>
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,sans-serif;margin:0;background:#f5f6f8;color:#1f2937}header{background:#111827;color:white;padding:16px}main{padding:14px;max-width:720px;margin:auto}.card{background:white;border-radius:14px;padding:14px;margin:12px 0;box-shadow:0 1px 5px #0002}h1{font-size:22px;margin:0}h2{font-size:17px;margin:0 0 10px}label{display:block;font-size:13px;font-weight:600;margin-top:10px}input,select,textarea,button{font:inherit;border-radius:10px;border:1px solid #cbd5e1;padding:10px;width:100%;box-sizing:border-box}button{background:#111827;color:white;border:0;margin-top:10px;font-weight:700}.row{display:grid;grid-template-columns:1fr 1fr;gap:8px}.metric{display:flex;justify-content:space-between;border-bottom:1px solid #eee;padding:7px 0}.small{font-size:12px;color:#64748b}.pill{display:inline-block;background:#e5e7eb;border-radius:99px;padding:4px 8px;margin:3px;font-size:12px}.danger{background:#991b1b}.secondary{background:#475569}.meal{border-top:1px solid #eee;padding:10px 0}.foodbtn{background:#e5e7eb;color:#111827;margin:4px 2px;width:auto;padding:8px 10px}.good{color:#047857}.warn{color:#b45309}.bad{color:#b91c1c}</style>
+</head>
+<body>
+<header><h1>Cruise Food Tracker</h1><div class="small" style="color:#d1d5db">Local-only tracker. Estimates are rough, not medical advice.</div></header>
+<main>
+<div class="card"><h2>Profile & Targets</h2><div class="row"><div><label>Age</label><input id="age" type="number" value="49"></div><div><label>Sex</label><select id="sex"><option value="male" selected>male</option><option value="female">female</option></select></div></div><div class="row"><div><label>Height inches</label><input id="height" type="number" value="69"></div><div><label>Weight lb</label><input id="weight" type="number" value="167"></div></div><div class="row"><div><label>Goal</label><select id="goal"><option value="vacation_damage_control" selected>vacation damage-control</option><option value="fat_loss">fat loss</option><option value="maintenance">maintenance</option><option value="muscle_gain">muscle gain</option><option value="glucose_control">glucose control</option><option value="hunger_control">hunger control</option></select></div><div><label>Activity</label><select id="activity"><option value="sedentary">sedentary</option><option value="light">light</option><option value="moderate" selected>moderate</option><option value="very_active">very active</option><option value="athlete">athlete</option></select></div></div><button onclick="saveProfile()">Save Profile</button><div id="targets"></div></div>
+<div class="card"><h2>Today</h2><div id="today"></div></div>
+<div class="card"><h2>Quick Add Common Cruise Foods</h2><div id="foodButtons"></div></div>
+<div class="card"><h2>Custom Meal</h2><label>Meal name</label><input id="mname" placeholder="e.g., taco plate"><label>Calories</label><input id="cal" type="number" placeholder="650"><div class="row"><div><label>Protein g</label><input id="pro" type="number" placeholder="30"></div><div><label>Carbs g</label><input id="carb" type="number" placeholder="55"></div></div><div class="row"><div><label>Fat g</label><input id="fat" type="number" placeholder="35"></div><div><label>Fiber g</label><input id="fib" type="number" placeholder="6"></div></div><div class="row"><div><label>Satiety 0-100</label><input id="sat" type="number" placeholder="55"></div><div><label>Glycemic</label><select id="gly"><option>Low</option><option selected>Moderate</option><option>High</option></select></div></div><label>Notes</label><textarea id="notes" placeholder="protein first, rice last"></textarea><button onclick="addCustom()">Add Custom Meal</button></div>
+<div class="card"><h2>Meal Log</h2><div id="log"></div><button class="secondary" onclick="exportData()">Export Backup JSON</button><label>Import Backup JSON</label><textarea id="importBox" placeholder="Paste backup JSON here"></textarea><button class="secondary" onclick="importData()">Import Backup</button><button class="danger" onclick="wipeData()">Clear All Data</button></div>
+</main>
+<script>
+const K='cruise_food_tracker_v1';
+const foods=[
+{name:'Eggs, 2',cal:140,p:12,c:1,f:10,fi:0,s:70,g:'Low'},
+{name:'Bacon, 2 slices',cal:100,p:6,c:0,f:8,fi:0,s:35,g:'Low'},
+{name:'Greek yogurt + berries',cal:220,p:20,c:25,f:3,fi:5,s:75,g:'Moderate'},
+{name:'Oatmeal',cal:220,p:6,c:38,f:4,fi:5,s:55,g:'Moderate'},
+{name:'Shrimp cocktail',cal:150,p:25,c:5,f:2,fi:0,s:90,g:'Low'},
+{name:'Grilled chicken + veg',cal:450,p:45,c:20,f:18,fi:6,s:80,g:'Low'},
+{name:'Grilled fish + veg',cal:500,p:42,c:20,f:24,fi:5,s:75,g:'Low'},
+{name:'Steak + veg',cal:650,p:48,c:18,f:40,fi:5,s:60,g:'Low'},
+{name:'Two beef tacos',cal:700,p:28,c:55,f:38,fi:7,s:55,g:'Moderate'},
+{name:"Guy's burger + fries",cal:1050,p:38,c:90,f:60,fi:5,s:35,g:'High'},
+{name:'Big Chicken sandwich + fries',cal:1000,p:42,c:85,f:55,fi:4,s:35,g:'High'},
+{name:'BlueIguana protein/bean bowl',cal:650,p:38,c:65,f:24,fi:12,s:70,g:'Moderate'},
+{name:'Chicken salad entree',cal:550,p:40,c:20,f:32,fi:7,s:70,g:'Low'},
+{name:'Pizza, 2 slices',cal:650,p:26,c:70,f:30,fi:4,s:35,g:'High'},
+{name:'Pasta Alfredo',cal:900,p:25,c:95,f:45,fi:4,s:25,g:'High'},
+{name:'Chocolate melting cake',cal:550,p:7,c:65,f:30,fi:3,s:15,g:'High'},
+{name:'Fruit plate',cal:160,p:2,c:38,f:0,fi:5,s:60,g:'Moderate'},
+{name:'Ice cream',cal:300,p:5,c:38,f:15,fi:0,s:20,g:'High'}];
+function blank(){return{profile:{age:49,sex:'male',height:69,weight:167,goal:'vacation_damage_control',activity:'moderate'},meals:[]}}
+function get(){try{return JSON.parse(localStorage.getItem(K))||blank()}catch(e){return blank()}}
+function put(s){localStorage.setItem(K,JSON.stringify(s))}
+function iso(d=new Date()){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0')}
+function kg(lb){return Number(lb)*0.45359237}function cm(i){return Number(i)*2.54}function round(v,n){return Math.round(v/n)*n}
+function targets(p){let w=kg(p.weight),h=cm(p.height),a=Number(p.age);let rmr=p.sex==='female'?10*w+6.25*h-5*a-161:10*w+6.25*h-5*a+5;let f={sedentary:1.2,light:1.375,moderate:1.55,very_active:1.725,athlete:1.9}[p.activity]||1.375;let t=rmr*f,g=p.goal,lo=t-100,hi=t+100,sat='45-60';if(g==='fat_loss'||g==='hunger_control'){lo=t-500;hi=t-250;sat='55-70'}else if(g==='vacation_damage_control'){lo=t-250;hi=t+100;sat='45-60'}else if(g==='muscle_gain'){lo=t+150;hi=t+300;sat='35-55'}else if(g==='glucose_control'){lo=t-250;hi=t+100;sat='50-70'}let pk=kg(p.weight),pmin=pk*1.2,pmax=pk*1.6;if(['fat_loss','hunger_control','muscle_gain','vacation_damage_control'].includes(g)){pmin=pk*1.6;pmax=pk*2.2}return{rmr:round(rmr,10),tdee:round(t,50),lo:Math.max(1200,round(lo,50)),hi:Math.max(1300,round(hi,50)),pmin:Math.round(pmin),pmax:Math.round(pmax),sat}}
+function cat(s){return s<30?'Low':s<50?'Lower-moderate':s<70?'Good':'Very high'}
+function loadProfile(){let s=get(),p=s.profile;age.value=p.age;sex.value=p.sex;height.value=p.height;weight.value=p.weight;goal.value=p.goal;activity.value=p.activity;render()}
+function saveProfile(){let s=get();s.profile={age:+age.value,sex:sex.value,height:+height.value,weight:+weight.value,goal:goal.value,activity:activity.value};put(s);render()}
+function addMeal(m){let s=get();s.meals.push({...m,id:Date.now(),date:iso()});put(s);render()}
+function addFood(i){let f=foods[i];addMeal({name:f.name,cal:f.cal,p:f.p,c:f.c,f:f.f,fi:f.fi,s:f.s,g:f.g,notes:'quick add'})}
+function addCustom(){addMeal({name:mname.value||'Custom meal',cal:+cal.value||0,p:+pro.value||0,c:+carb.value||0,f:+fat.value||0,fi:+fib.value||0,s:+sat.value||50,g:gly.value,notes:notes.value||''});mname.value=cal.value=pro.value=carb.value=fat.value=fib.value=sat.value=notes.value=''}
+function delMeal(id){let s=get();s.meals=s.meals.filter(m=>m.id!==id);put(s);render()}
+function render(){let s=get(),p=s.profile,t=targets(p),todayMeals=s.meals.filter(m=>m.date===iso());let total=todayMeals.reduce((a,m)=>{a.cal+=+m.cal;a.p+=+m.p;a.c+=+m.c;a.f+=+m.f;a.fi+=+m.fi;a.s+=+m.s;return a},{cal:0,p:0,c:0,f:0,fi:0,s:0});let avg=todayMeals.length?Math.round(total.s/todayMeals.length):0;targetsDiv=`<div class='metric'><span>RMR</span><b>${t.rmr} kcal</b></div><div class='metric'><span>TDEE</span><b>${t.tdee} kcal</b></div><div class='metric'><span>Calorie target</span><b>${t.lo}-${t.hi}</b></div><div class='metric'><span>Protein target</span><b>${t.pmin}-${t.pmax} g</b></div><div class='metric'><span>Satiety target</span><b>${t.sat}</b></div>`;document.getElementById('targets').innerHTML=targetsDiv;document.getElementById('today').innerHTML=`<div class='metric'><span>Calories</span><b>${Math.round(total.cal)} / ${t.lo}-${t.hi}</b></div><div class='metric'><span>Protein</span><b>${Math.round(total.p)} / ${t.pmin}-${t.pmax} g</b></div><div class='metric'><span>Carbs</span><b>${Math.round(total.c)} g</b></div><div class='metric'><span>Fat</span><b>${Math.round(total.f)} g</b></div><div class='metric'><span>Fiber</span><b>${Math.round(total.fi)} g</b></div><div class='metric'><span>Avg satiety</span><b>${todayMeals.length?avg+'/100 ('+cat(avg)+')':'n/a'}</b></div>`;document.getElementById('foodButtons').innerHTML=foods.map((f,i)=>`<button class='foodbtn' onclick='addFood(${i})'>${f.name}<br><span class='small'>${f.cal} kcal, P${f.p}, S${f.s}</span></button>`).join('');document.getElementById('log').innerHTML=s.meals.slice().reverse().map(m=>`<div class='meal'><b>${m.date}: ${m.name}</b> <span class='pill'>${cat(m.s)}</span><br><span class='small'>${m.cal} kcal | P ${m.p}g | C ${m.c}g | F ${m.f}g | fiber ${m.fi}g | satiety ${m.s}/100 | glycemic ${m.g}</span><br><span class='small'>${m.notes||''}</span><button class='secondary' onclick='delMeal(${m.id})'>Delete</button></div>`).join('')||'<p class="small">No meals logged yet.</p>'}
+function exportData(){let data=JSON.stringify(get(),null,2);navigator.clipboard&&navigator.clipboard.writeText(data);alert('Backup JSON copied if clipboard permission was available. It is also shown in the import box.');importBox.value=data}
+function importData(){try{let d=JSON.parse(importBox.value);put(d);render();alert('Imported.')}catch(e){alert('Invalid JSON.')}}
+function wipeData(){if(confirm('Clear all data?')){localStorage.removeItem(K);loadProfile()}}
+loadProfile();
+</script>
+</body></html>
